@@ -10,11 +10,23 @@ import fg from 'fast-glob'
 import consola from 'consola'
 import { dim } from 'colorette'
 import history from 'connect-history-api-fallback'
+import * as vite from 'vite'
 
 const DEFAULT_TEMPLATE = 'index.html'
 const ignoreDirs = ['.', '', '/']
 
 const bodyInjectRE = /<\/body>/
+
+function getViteMajorVersion(): number {
+  let version = 0
+  try {
+    // @ts-ignore
+    version = Number(vite.version.split('.')[0])
+  } catch (_) {
+    version = 2
+  }
+  return version
+}
 
 export function createPlugin(userOptions: UserOptions = {}): PluginOption {
   const {
@@ -114,18 +126,17 @@ export function createPlugin(userOptions: UserOptions = {}): PluginOption {
       )
     },
 
-    transformIndexHtml: userOptions.viteNext
-      ?
-      {
-        // @ts-ignore
-        order: 'pre',
-        handler: transformIndexHtmlHandler,
-      }
-      :
-      {
-        enforce: 'pre',
-        transform: transformIndexHtmlHandler,
-      },
+    transformIndexHtml:
+      getViteMajorVersion() >= 5
+        ? {
+            // @ts-ignore
+            order: 'pre',
+            handler: transformIndexHtmlHandler,
+          }
+        : {
+            enforce: 'pre',
+            transform: transformIndexHtmlHandler,
+          },
     async closeBundle() {
       const outputDirs: string[] = []
 
