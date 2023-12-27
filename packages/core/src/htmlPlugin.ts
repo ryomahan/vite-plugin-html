@@ -18,14 +18,8 @@ const ignoreDirs = ['.', '', '/']
 const bodyInjectRE = /<\/body>/
 
 function getViteMajorVersion(): number {
-  let version = 0
-  try {
-    // @ts-ignore
-    version = Number(vite.version.split('.')[0])
-  } catch (_) {
-    version = 2
-  }
-  return version
+  // @ts-ignore
+  return vite?.version ? Number(vite.version.split('.')[0]) : 2
 }
 
 export function createPlugin(userOptions: UserOptions = {}): PluginOption {
